@@ -1,3 +1,7 @@
+import math
+import random 
+from collections import deque
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -42,11 +46,23 @@ class SocialGraph:
         self.last_id = 0
         self.users = {}
         self.friendships = {}
-        # !!!! IMPLEMENT ME
 
         # Add users
+        for i in range(num_users):
+            self.add_user(f"User {i}")
 
         # Create friendships
+        possible_friendships = []
+        for user_id in self.users:
+            for friend_id in range(user_id + 1, self.last_id + 1):
+                possible_friendships.append((user_id, friend_id))
+        #shuffle friendship array
+        random.shuffle(possible_friendships)
+
+        #take first num_users * avg_friendships / 2 and that will be friendships we will build in our graph
+        for i in range(math.floor(num_users * avg_friendships / 2)):
+            friendship = possible_friendships[i]
+            self.add_friendship(friendship[0], friendship[1])
 
     def get_all_social_paths(self, user_id):
         """
@@ -58,7 +74,17 @@ class SocialGraph:
         The key is the friend's ID and the value is the path.
         """
         visited = {}  # Note that this is a dictionary, not a set
-        # !!!! IMPLEMENT ME
+        queue = deque() # we need this for a bft
+        queue.append([user_id])
+        while len(queue) > 0:
+            currPath = queue.popleft()
+            currNode = currPath[-1] 
+            visited[currNode] = currPath #bft guarantees us that this is the shortest path to the currnode from user_id
+            for friend in self.friendships[currNode]:
+                if friend not in visited:
+                    newPath = currPath.copy()
+                    newPath.append(friend)
+                    queue.append(newPath)
         return visited
 
 
